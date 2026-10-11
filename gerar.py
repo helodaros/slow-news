@@ -54,19 +54,17 @@ FONTES = {
         ("https://pox.globo.com/rss/valor/", "economia")]},
     "poder360": {"nome": "Poder360", "site": "poder360.com.br", "linha": "centro", "feeds": [
         ("https://www.poder360.com.br/feed/", None)]},
-    "estadao": {"nome": "Estadão", "site": "estadao.com.br", "linha": "centro-direita", "feeds": [
+    "estadao": {"nome": "Estadão", "site": "estadao.com.br", "linha": "direita", "feeds": [
         ("https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/politica/", "politica"),
         ("https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/brasil/", "brasil"),
         ("https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/internacional/", "mundo"),
         ("https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/economia/", "economia"),
         ("https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/cultura/", "cultura")]},
-    "cnn": {"nome": "CNN Brasil", "site": "cnnbrasil.com.br", "linha": "centro-direita", "feeds": [
-        ("https://www.cnnbrasil.com.br/feed/", None)]},
-    "metropoles": {"nome": "Metrópoles", "site": "metropoles.com", "linha": "centro-direita", "feeds": [
+    "metropoles": {"nome": "Metrópoles", "site": "metropoles.com", "linha": "centro", "feeds": [
         ("https://www.metropoles.com/feed", None),
         ("https://www.metropoles.com/brasil/feed", "brasil"),
         ("https://www.metropoles.com/mundo/feed", "mundo")]},
-    "infomoney": {"nome": "InfoMoney", "site": "infomoney.com.br", "linha": "centro-direita", "feeds": [
+    "infomoney": {"nome": "InfoMoney", "site": "infomoney.com.br", "linha": "direita", "feeds": [
         ("https://www.infomoney.com.br/feed/", None)]},
     "brasil247": {"nome": "Brasil 247", "site": "brasil247.com", "linha": "esquerda", "feeds": [
         ("https://www.brasil247.com/feed", None)]},
@@ -81,12 +79,24 @@ FONTES = {
         ("https://www.cartacapital.com.br/tecnologia/feed/", "tecnologia")]},
     "dcm": {"nome": "Diário do Centro do Mundo", "site": "diariodocentrodomundo.com.br", "linha": "esquerda", "feeds": [
         ("https://www.diariodocentrodomundo.com.br/feed/", None)]},
-    "diplomatique": {"nome": "Le Monde Diplomatique Brasil", "site": "diplomatique.org.br", "linha": "esquerda", "feeds": [
-        ("https://diplomatique.org.br/feed/", None)]},
+    "gazeta": {"nome": "Gazeta do Povo", "site": "gazetadopovo.com.br", "linha": "direita", "feeds": [
+        ("https://www.gazetadopovo.com.br/feed/rss/ultimas-noticias.xml", None),
+        ("https://www.gazetadopovo.com.br/feed/rss/republica.xml", "politica"),
+        ("https://www.gazetadopovo.com.br/feed/rss/economia.xml", "economia"),
+        ("https://www.gazetadopovo.com.br/feed/rss/mundo.xml", "mundo"),
+        ("https://www.gazetadopovo.com.br/feed/rss/cultura.xml", "cultura"),
+        ("https://www.gazetadopovo.com.br/feed/rss/vida-e-cidadania.xml", "brasil")]},
+    "oeste": {"nome": "Revista Oeste", "site": "revistaoeste.com", "linha": "direita", "feeds": [
+        ("https://revistaoeste.com/feed/", None),
+        ("https://revistaoeste.com/politica/feed/", "politica"),
+        ("https://revistaoeste.com/brasil/feed/", "brasil"),
+        ("https://revistaoeste.com/mundo/feed/", "mundo"),
+        ("https://revistaoeste.com/economia/feed/", "economia"),
+        ("https://revistaoeste.com/tecnologia/feed/", "tecnologia")]},
 }
 
 SEGMENTOS = {
-    "politica": {"politica", "poder", "eleicoes", "eleicoes-2026", "governo", "congresso", "politica-brasil"},
+    "politica": {"politica", "poder", "eleicoes", "eleicoes-2026", "governo", "congresso", "politica-brasil", "republica"},
     "mundo": {"mundo", "internacional", "world", "america-latina"},
     "economia": {"economia", "mercado", "mercados", "negocios", "empresas", "financas", "agronegocios",
                  "money", "macroeconomia", "investimentos", "minhas-financas", "carreira"},
@@ -94,17 +104,18 @@ SEGMENTOS = {
     "cultura": {"cultura", "ilustrada", "pop-arte", "entretenimento", "cinema", "musica", "livros", "literatura",
                 "artes", "teatro", "exposicoes", "diversao", "pop", "series", "filmes"},
     "brasil": {"brasil", "cotidiano", "nacional", "saude", "educacao", "meio-ambiente", "ciencia", "sustentabilidade",
+               "vida-e-cidadania",
                "seguranca", "clima"},
 }
 REGIONAIS = {"sudeste", "nordeste", "sul", "norte", "centro-oeste", "distrito-federal", "sao-paulo", "minas-gerais",
-             "rio-de-janeiro", "parana", "bahia", "pernambuco", "goias", "ceara", "rio-grande-do-sul", "regional"}
+             "rio-de-janeiro", "parana", "bahia", "pernambuco", "goias", "ceara", "rio-grande-do-sul", "regional", "curitiba"}
 UFS = {"ac", "al", "ap", "am", "ba", "ce", "df", "es", "go", "ma", "mt", "ms", "mg", "pa", "pb", "pr", "pe", "pi",
        "rj", "rn", "rs", "ro", "rr", "sc", "sp", "se", "to"}
 EXCLUIR_SEGMENTOS = {"esporte", "esportes", "futebol", "celebridades", "famosos", "gente", "horoscopo", "loterias",
                      "bbb", "reality", "blog", "blogs", "opiniao", "colunas", "coluna", "colunistas", "podcast",
                      "podcasts", "video", "videos", "patrocinado", "publieditorial", "brasileirao", "receitas",
                      "fotos", "galerias", "loteria", "astrologia", "tv-e-famosos", "vida-e-estilo", "bem-estar",
-                     "curiosidades", "viagem", "turismo", "moda", "beleza", "pets"}
+                     "curiosidades", "viagem", "turismo", "moda", "beleza", "pets", "vozes", "automoveis", "ladooa"}
 EXCLUIR_TAGS = {"esportes", "esporte", "celebridades", "futebol", "brasileirão", "horóscopo", "bbb", "famosos",
                 "loterias", "fofoca", "reality show", "patrocinado", "blog", "opinião"}
 EXCLUIR_TITULO = re.compile(
@@ -305,12 +316,14 @@ def selecionar(itens, agora):
 
 
 def parecido(a, b):
-    return sum(v * b["vec"].get(t, 0) for t, v in a["vec"].items()) >= 0.25
+    # Duas matérias do mesmo portal com palavras raras em comum quase sempre são o mesmo assunto.
+    limite = 0.10 if a["fonte"] == b["fonte"] else 0.25
+    return sum(v * b["vec"].get(t, 0) for t, v in a["vec"].items()) >= limite
 
 
 def escolher_editoria(grupos, rodada):
     """Alterna entre linhas editoriais; cada uma contribui com os fatos de maior repercussão que cobriu."""
-    linhas = ["centro", "esquerda", "centro-direita"]
+    linhas = ["centro", "esquerda", "direita"]
     linhas = linhas[rodada % 3:] + linhas[:rodada % 3]
     por_linha = {}
     for l in linhas:
@@ -328,7 +341,7 @@ def escolher_editoria(grupos, rodada):
                 fila = filas[linha]
                 while fila:
                     g = fila.pop(0)
-                    if id(g) in usados or any(parecido(g["membros"][0], e) for e in escolhidos):
+                    if id(g) in usados:
                         continue
                     # O representante precisa ser da mesma editoria, salvo se a dele veio só de palpite.
                     opcoes = [m for m in g["membros"] if FONTES[m["fonte"]]["linha"] == linha
@@ -336,6 +349,8 @@ def escolher_editoria(grupos, rodada):
                     if not opcoes:
                         continue
                     m = min(opcoes, key=lambda m: (uso_fonte[m["fonte"]], -len(m["resumo"])))
+                    if any(parecido(m, e) for e in escolhidos):
+                        continue
                     usados.add(id(g))
                     uso_fonte[m["fonte"]] += 1
                     escolhidos.append({**m, "nota": g["nota"]})
