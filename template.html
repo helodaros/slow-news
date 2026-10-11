@@ -15,7 +15,7 @@
   }
   a { color: #0033cc; text-decoration: none; }
   a:hover { text-decoration: underline; color: #cc0000; }
-  #pagina { width: 780px; margin: 0 auto; background: #fff; border: 1px solid #a8a8a8; border-top: 0; }
+  #pagina { width: 1000px; margin: 0 auto; background: #fff; border: 1px solid #a8a8a8; border-top: 0; }
 
   /* barra superior */
   #barra { display: flex; justify-content: space-between; background: #f0f0f0; border-bottom: 1px solid #c8c8c8;
@@ -23,16 +23,17 @@
   #barra a { color: #333; margin-left: 8px; }
 
   /* cabeçalho */
-  #topo { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 8px;
-          background: linear-gradient(#ffdd33, #ffb400); border-bottom: 3px solid #e08a00; }
-  #logo { text-decoration: none; display: flex; align-items: baseline; gap: 6px; }
-  #logo b { font: italic 900 38px/1 "Arial Black", Arial, sans-serif; letter-spacing: -2px; color: #00227a;
-            text-shadow: 2px 2px 0 #fff, 3px 3px 0 #a86a00; }
-  #logo i { font: bold 13px "Trebuchet MS", Arial, sans-serif; color: #7a3d00; font-style: normal; }
+  #topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 12px;
+          background: linear-gradient(#ffffff, #e6ebf4); border-bottom: 1px solid #b9c3d6; }
+  #logo { display: flex; align-items: center; flex-wrap: wrap; row-gap: 4px; text-decoration: none; }
   #logo:hover { text-decoration: none; }
-  #selo { text-align: right; font: 10px Verdana, sans-serif; color: #5a3200; }
-  #selo strong { display: block; font: bold 18px "Trebuchet MS", Arial, sans-serif; color: #00227a; }
-  #selo span { display: inline-block; margin-top: 3px; padding: 1px 6px; background: #cc0000; color: #fff;
+  #logo b { font: bold 46px/1 Georgia, "Times New Roman", Times, serif; letter-spacing: -1px; color: #00227a;
+            text-shadow: 1px 1px 0 #fff, 2px 2px 0 #c3cce0; }
+  #logo i { margin-left: 22px; padding: 5px 0 5px 18px; border-left: 1px solid #b9c3d6;
+            font: italic 14px Georgia, "Times New Roman", Times, serif; color: #5b6475; }
+  #selo { text-align: right; font: 10px Verdana, sans-serif; color: #5b6475; }
+  #selo strong { display: block; font: bold 18px Georgia, "Times New Roman", Times, serif; color: #00227a; }
+  #selo span { display: inline-block; margin-top: 4px; padding: 1px 6px; background: #cc0000; color: #fff;
                font-weight: bold; border: 1px outset #ff6666; }
 
   /* menu de canais */
@@ -42,7 +43,7 @@
   #menu a:hover { background: var(--cor); text-decoration: none; }
 
   /* letreiro */
-  #letreiro { display: flex; align-items: center; background: #fffbe0; border-bottom: 1px solid #e6d98a; overflow: hidden; }
+  #letreiro { display: flex; align-items: center; background: #f3f5f9; border-bottom: 1px solid #d3d9e4; overflow: hidden; }
   #letreiro em { flex: none; background: #cc0000; color: #fff; font: bold 10px Verdana; padding: 4px 8px;
                  font-style: normal; text-transform: uppercase; }
   #letreiro marquee { flex: 1; min-width: 0; padding: 3px 0; font-size: 11px; }
@@ -51,7 +52,7 @@
   /* colunas */
   #colunas { display: flex; gap: 8px; padding: 8px; }
   #lateral { flex: 0 0 148px; }
-  #principal { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+  #principal { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start; }
 
   .caixa { border: 1px solid #b5c4e0; margin-bottom: 8px; background: #f4f7fc; }
   .caixa h3 { margin: 0; padding: 3px 6px; font: bold 10px Verdana; color: #fff; text-transform: uppercase;
@@ -80,20 +81,27 @@
   .lead { background: linear-gradient(#f7f7f7, #fff); margin: 0 -6px; padding: 7px 6px 8px !important; }
   .lead .manchete { font-size: 16px; line-height: 1.2; color: #00227a; }
   .lead .manchete::before { content: ""; }
+  .lead .manchete img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; margin-bottom: 7px;
+                        padding: 2px; border: 1px solid #a9a9a9; background: #fff; }
   .vazio { color: #888; font-style: italic; }
 
   /* rodapé */
-  #rodape { background: #efefef; border-top: 3px solid #ffb400; padding: 8px 10px 10px; text-align: center;
+  #rodape { background: #efefef; border-top: 3px solid #00227a; padding: 8px 10px 10px; text-align: center;
             font-size: 10px; color: #555; }
   #rodape nav a { margin: 0 5px; font-weight: bold; }
   #rodape p { margin: 6px 0 0; }
   #rodape .selo-ie { display: inline-block; margin-top: 6px; padding: 1px 6px; border: 1px solid #999;
                      background: linear-gradient(#fff, #ddd); font-size: 9px; color: #444; }
 
-  @media (max-width: 800px) {
+  @media (max-width: 1020px) {
     #pagina { width: auto; border: 0; }
-    #topo { flex-wrap: wrap; gap: 6px; }
-    #logo b { font-size: 30px; }
+    #principal { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 700px) {
+    #topo { flex-wrap: wrap; }
+    #logo b { font-size: 36px; }
+    #logo i { flex-basis: 100%; margin-left: 0; padding: 0; border-left: 0; }
+    #selo { text-align: left; }
     #colunas { flex-direction: column; }
     #lateral { flex: none; order: 2; }
     #principal { grid-template-columns: 1fr; }
@@ -155,7 +163,7 @@
 {{MENU}}
     </nav>
     <p>Slow News &copy; {{ANO}} &middot; As notícias pertencem aos seus respectivos veículos.</p>
-    <span class="selo-ie">Melhor visualizado em 800x600</span>
+    <span class="selo-ie">Melhor visualizado em 1024x768</span>
   </footer>
 </div>
 </body>

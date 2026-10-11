@@ -11,7 +11,7 @@ import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import feedparser
 
@@ -165,6 +165,7 @@ def limpar(texto):
     texto = re.sub(r"(O post|The post)\s.*?(apareceu primeiro em|appeared first on)\s.*$", "", texto, flags=re.S)
     texto = re.sub(r"\s*(Leia mais|Continue lendo|Leia também)\b.*$", "", texto, flags=re.S | re.I)
     texto = re.sub(r"\s*\[(…|\.\.\.)\].*$", "…", texto, flags=re.S)
+    texto = re.sub(r"\[\s*https?://[^\]]*\]|\bhttps?://\S+", "", texto)
     texto = re.sub(r"\s+", " ", texto).strip()
     texto = re.sub(r"\s+([,.;:!?)\]])", r"\1", texto)
     return re.sub(r"([(\[])\s+", r"\1", texto)
@@ -218,6 +219,18 @@ def classificar(link, titulo, tags, padrao):
     return cat, regional, peso
 
 
+def foto_do_item(e):
+    for m in (e.get("media_content") or []) + (e.get("media_thumbnail") or []):
+        if m.get("url") and m.get("medium", "image") == "image":
+            return m["url"]
+    for anexo in e.get("enclosures") or []:
+        if anexo.get("type", "").startswith("image/") and anexo.get("href"):
+            return anexo["href"]
+    conteudo = e.get("summary", "") + "".join(c.get("value", "") for c in e.get("content") or [])
+    img = re.search(r'<img[^>]+src=["\']([^"\']+)', conteudo, re.I)
+    return html.unescape(img.group(1)) if img else ""
+
+
 def ler_feed(chave, url, padrao):
     try:
         dados = baixar(url)
@@ -244,16 +257,20 @@ def ler_feed(chave, url, padrao):
         cat, regional, peso = classificar(link, titulo, tags, padrao)
         if not cat:
             continue
+        foto_rss = foto_do_item(e)
         bruto = e.get("summary", "")
         if "glbimg.com" in bruto[:300]:
-            # g1 e Valor abrem o resumo com a foto, a legenda e às vezes o crédito (linha curta sem ponto).
+            # g1 e Valor abrem o resumo com a foto, a legenda e às vezes o crédito (linha curta sem pontuação final).
             bruto = re.sub(r"^\s*<img[^>]*>\s*(<br\s*/?>)?[^\n]*\n", "", bruto)
-            bruto = re.sub(r"^\s*[^\n.]{1,70}\n", "", bruto)
+            primeira, _, resto = bruto.partition("\n")
+            if resto and len(primeira.strip()) <= 120 and not re.search(r'[.!?…"”]$', primeira.strip()):
+                bruto = resto
         resumo = limpar(bruto)
         if resumo.lower().startswith(titulo.lower()[:40]):
             resumo = resumo[len(titulo):].strip(" -–—:")
         itens.append({"link": link.split("#")[0], "titulo": titulo, "resumo": resumo, "quando": quando,
-                      "cat": cat, "peso": peso, "regional": regional, "fonte": fonte_do_link(link, chave)})
+                      "cat": cat, "peso": peso, "regional": regional, "fonte": fonte_do_link(link, chave),
+                      "foto_rss": foto_rss})
     print(f"  {len(itens):3d} itens  {url}")
     return itens
 
@@ -396,28 +413,65 @@ def paragrafos_do_corpo(pagina):
     return " ".join(textos)
 
 
-def trecho_da_pagina(url):
-    """Início da matéria (JSON-LD ou parágrafos marcados) ou, se não houver, a linha fina (og:description)."""
+def metas(pagina):
+    """Conteúdo das tags <meta> por property/name (a ordem dos atributos varia entre os sites)."""
+    achadas = {}
+    for tag in re.findall(r"<meta\b[^>]*>", pagina, re.I):
+        attrs = {k.lower(): html.unescape(a or b) for k, a, b in
+                 re.findall(r'([\w:-]+)\s*=\s*(?:"([^"]*)"|\'([^\']*)\')', tag)}
+        nome = (attrs.get("property") or attrs.get("name") or "").lower()
+        if nome and attrs.get("content") and nome not in achadas:
+            achadas[nome] = attrs["content"]
+    return achadas
+
+
+def ler_pagina(url):
+    """Devolve (trecho, foto): o início da matéria ou a linha fina, e a imagem de destaque (og:image)."""
     try:
         pagina = baixar(url, timeout=20).decode("utf-8", "ignore")
     except Exception:
+        return "", ""
+    meta = metas(pagina)
+    trecho = corpo_jsonld(pagina)
+    if len(trecho) < MIN_RESUMO:
+        trecho = paragrafos_do_corpo(pagina)
+    if len(trecho) < MIN_RESUMO:
+        trecho = limpar(meta.get("og:description") or meta.get("description") or "") or trecho
+    foto = meta.get("og:image") or meta.get("twitter:image") or ""
+    return trecho, urljoin(url, foto) if foto else ""
+
+
+def foto_valida(url):
+    """A foto precisa abrir por https e ser imagem de verdade (não o logo genérico do site)."""
+    url = re.sub(r"^http://", "https://", url.strip())
+    if not url.startswith("https://") or re.search(r"logo|default|placeholder|avatar|favicon", url, re.I):
         return ""
-    corpo = corpo_jsonld(pagina)
-    if len(corpo) < MIN_RESUMO:
-        corpo = paragrafos_do_corpo(pagina)
-    if len(corpo) >= MIN_RESUMO:
-        return corpo
-    og = re.search(r'<meta[^>]+(?:property|name)=["\'](?:og:description|description)["\'][^>]+content=["\']([^"\']+)',
-                   pagina, re.I)
-    return limpar(og.group(1)) if og else corpo
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=15) as r:
+            return url if r.headers.get_content_type().startswith("image/") else ""
+    except Exception:
+        return ""
 
 
-def completar_resumos(selecao):
-    faltando = [it for lista in selecao.values() for it in lista if len(it["resumo"]) < MIN_RESUMO]
+def completar(selecao):
+    """Completa resumos curtos e escolhe a foto da manchete principal de cada editoria."""
+    candidatas = {id(it) for lista in selecao.values() for it in lista[:3]}
+    visitar = [it for lista in selecao.values() for it in lista
+               if len(it["resumo"]) < MIN_RESUMO or id(it) in candidatas]
     with cf.ThreadPoolExecutor(12) as ex:
-        for it, texto in zip(faltando, ex.map(lambda it: trecho_da_pagina(it["link"]), faltando)):
-            if len(texto) > len(it["resumo"]):
-                it["resumo"] = texto
+        paginas = list(ex.map(lambda it: ler_pagina(it["link"]), visitar))
+    for it, (trecho, foto) in zip(visitar, paginas):
+        if len(it["resumo"]) < MIN_RESUMO and len(trecho) > len(it["resumo"]):
+            it["resumo"] = trecho
+        it["fotos"] = [f for f in (foto, it["foto_rss"]) if f]
+
+    # Se a primeira manchete não tiver foto, a segunda ou a terceira que tiver assume o destaque.
+    for lista in selecao.values():
+        for i, it in enumerate(lista[:3]):
+            it["foto"] = next((ok for f in it.get("fotos", []) if (ok := foto_valida(f))), "")
+            if it["foto"]:
+                lista.insert(0, lista.pop(i))
+                break
 
 
 DIAS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo"]
@@ -436,9 +490,12 @@ def renderizar(selecao, agora):
                             f'{e(itens[0]["titulo"])}</a>')
         lis = []
         for i, it in enumerate(itens):
+            foto = ""
+            if i == 0 and it.get("foto"):
+                foto = f'<img src="{e(it["foto"])}" alt="" loading="lazy" referrerpolicy="no-referrer">'
             lis.append(
                 f'<li class="{"lead" if i == 0 else ""}">'
-                f'<a class="manchete" href="{e(it["link"])}" target="_blank" rel="noopener">{e(it["titulo"])}</a>'
+                f'<a class="manchete" href="{e(it["link"])}" target="_blank" rel="noopener">{foto}{e(it["titulo"])}</a>'
                 f'<p>{e(cortar(it["resumo"]))}</p>'
                 f'<span class="fonte">{e(FONTES[it["fonte"]]["nome"])}</span></li>')
         corpo = "\n".join(lis) or '<li class="vazio">Nenhuma notícia encontrada hoje.</li>'
@@ -478,7 +535,7 @@ def main():
         sys.exit(f"Só {len(itens)} itens lidos; mantendo a página anterior.")
 
     selecao = selecionar(itens, agora.astimezone(timezone.utc))
-    completar_resumos(selecao)
+    completar(selecao)
 
     for cat, nome, _ in EDITORIAS:
         print(f"\n{nome}: {len(selecao.get(cat, []))}")
