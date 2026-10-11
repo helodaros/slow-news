@@ -18,8 +18,8 @@ import feedparser
 RAIZ = Path(__file__).parent
 BRT = timezone(timedelta(hours=-3))
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
-POR_EDITORIA = 10
-MAX_POR_FONTE = 2
+POR_EDITORIA = 6
+MAX_POR_FONTE = 1
 MIN_RESUMO = 160
 
 EDITORIAS = [
