@@ -92,6 +92,12 @@
   #rodape p { margin: 6px 0 0; }
   #rodape .selo-ie { display: inline-block; margin-top: 6px; padding: 1px 6px; border: 1px solid #999;
                      background: linear-gradient(#fff, #ddd); font-size: 9px; color: #444; }
+  #contador { margin-top: 8px; font-size: 10px; color: #444; }
+  .odometro { display: inline-flex; gap: 1px; margin-left: 5px; padding: 2px; vertical-align: middle;
+              background: #222; border: 1px solid #000; box-shadow: inset 0 0 0 1px #555; }
+  .odometro span { display: flex; align-items: center; justify-content: center; width: 12px; height: 17px;
+                   font: bold 13px "Courier New", Courier, monospace; color: #fff;
+                   background: linear-gradient(#000, #3a3a3a 48%, #111 52%, #000); }
 
   @media (max-width: 1020px) {
     #pagina { width: auto; border: 0; }
@@ -163,8 +169,26 @@
 {{MENU}}
     </nav>
     <p>Slow News &copy; {{ANO}} &middot; As notícias pertencem aos seus respectivos veículos.</p>
+    <div id="contador" hidden>Você é o visitante nº <span class="odometro" id="odometro"></span></div>
     <span class="selo-ie">Melhor visualizado em 1024x768</span>
   </footer>
 </div>
+<script type="module">
+  // Só o site publicado soma visitas; cópias locais apenas leem o número.
+  const acao = location.hostname.endsWith("github.io") ? "hit" : "get";
+  fetch(`https://abacus.jasoncameron.dev/${acao}/helodaros-slow-news/visitas`)
+    .then((resposta) => resposta.json())
+    .then(({ value }) => {
+      if (!Number.isFinite(value) || value < 0) return;
+      const odometro = document.getElementById("odometro");
+      for (const digito of String(value).padStart(6, "0")) {
+        const casa = document.createElement("span");
+        casa.textContent = digito;
+        odometro.append(casa);
+      }
+      document.getElementById("contador").hidden = false;
+    })
+    .catch(() => {});
+</script>
 </body>
 </html>
