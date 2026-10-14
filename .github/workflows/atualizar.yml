@@ -2,7 +2,7 @@ name: Atualizar Slow News
 
 on:
   schedule:
-    - cron: "0 15 * * *" # 15h UTC = 12h em Brasília (sem horário de verão desde 2019)
+    - cron: "7 14 * * *" # 14h07 UTC = 11h07 em Brasília (sem horário de verão desde 2019)
   workflow_dispatch:
 
 permissions:
